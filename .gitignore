@@ -9,3 +9,7 @@ gerbers/
 *.hex
 *.lst
 *.bin
+*.zip
+*.lck
+\#auto_saved_files\#
+_autosave*
