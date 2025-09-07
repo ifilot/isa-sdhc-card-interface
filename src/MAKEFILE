@@ -1,0 +1,12 @@
+sdcard.exe: main.obj sdcmds.obj
+    tcc -ms -eISASD.EXE main.obj sdcmds.obj
+
+sdcmds.obj: sdcmds.asm
+    tasm /mx sdcmds.asm
+
+main.obj: main.c
+    tcc -ms -c main.c
+
+clean:
+    del *.obj
+

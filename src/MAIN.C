@@ -12,11 +12,6 @@
 #define SDDEACT   (BASEPORT | 0x03)
 
 /* SD CARD COMMANDS */
-static const unsigned char cmd00[] = {0x40, 0x00, 0x00, 0x00, 0x00, 0x95};
-static const unsigned char cmd08[] = {0x48, 0x00, 0x00, 0x01, 0xAA, 0x87};
-static const unsigned char cmd55[] = {0x77, 0x00, 0x00, 0x00, 0x00, 0x65};
-static const unsigned char acmd41[] = {0x69, 0x40, 0x00, 0x00, 0x00, 0x77};
-static const unsigned char cmd58[] = {58|0x40, 0x00, 0x00, 0x00, 0x00, 0x01};
 static const unsigned char cmd17[] = {17|0x40, 0x00, 0x00, 0x00, 0x00, 0x01};
 
 static void send_command(const unsigned char cmd[]) {
@@ -25,13 +20,13 @@ static void send_command(const unsigned char cmd[]) {
 	outportb(WRITEVAL, cmd[i]);
 	outportb(STCLK, 0xFF);
     }
-    outportb(STCLK, 0xFF); /* send extra pulse for thinking */
+    /*outportb(STCLK, 0xFF); /* send extra pulse for thinking */
 }
 
 static unsigned char receive_byte() {
     outportb(WRITEVAL, 0xFF);
     outportb(STCLK, 0xFF);
-    return inportb(READVAL);
+    return inportb(WRITEVAL);
 }
 
 static unsigned char buffer[512];
@@ -49,18 +44,15 @@ int main() {
     inportb(SDDEACT);
     sden(BASEPORT);		/* enable SD card */
     cmdclr(BASEPORT);           /* send reset pulses */
+    v = cmd00(BASEPORT);	/* put card in idle state */
+    printf("CMD00 response: %02X\n", v);
+    v = cmd08(BASEPORT);	/* send cmd08 */
+    printf("CMD08 response: %02X ", v);
 
-    /* PUT CARD IN IDLE STATE */
-    send_command(cmd00);
-    v = receive_byte();
-    printf("Received: %02X\n", v);
-
-    /* SEND COMMAND 08 */
-    send_command(cmd08);
-
-    for(i=0; i<5; ++i) {
-	v = receive_byte();
-	printf("%02X", v);
+    /* retrieve remaining bytes of rsp5 */
+    for(i=0; i<4; ++i) {
+	v = sdrecvf(BASEPORT);
+	printf("%02X ", v);
     }
     printf("\n");
 
@@ -68,19 +60,21 @@ int main() {
     v = 0xFF;
     ctr = 0;
     while(v != 0x00 && ctr < 100) {
-	send_command(cmd55);
-	v = receive_byte();
-	send_command(acmd41);
-	v = receive_byte();
+	v = cmd55(BASEPORT);
+	if(v == 0xFF) {
+	    break;	/* terminate attempts */
+	}
+	v = acmd41(BASEPORT);
 	ctr++;
     }
-    printf("ACMD41: %02X (%i)\n", v, ctr);
+    printf("ACMD41 response: %02X (%i)\n", v, ctr);
 
     /* CMD58 - READ OCR */
-    send_command(cmd58);
-    for(i=0; i<5; ++i) {
-	v = receive_byte();
-	printf("%02X", v);
+    v = cmd58(BASEPORT);
+    printf("CMD58 response: %02X ", v);
+    for(i=0; i<4; ++i) {
+	v = sdrecvf(BASEPORT);
+	printf("%02X ", v);
     }
     printf("\n");
 
