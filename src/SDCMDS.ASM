@@ -6,6 +6,7 @@ dcmd08	db 48h, 00h, 00h, 01h,0AAh, 87h
 dcmd55	db 77h, 00h, 00h, 00h, 00h, 65h
 dacmd41	db 69h, 40h, 00h, 00h, 00h, 77h
 dcmd58	db 7Ah, 00h, 00h, 00h, 00h, 01h
+dcmd17  db 51h, 00h, 00h, 00h, 00h, 01h
 ;-------------------------------------------------------------------------
 	.code
 	public cmdclr           ; send 10 blank pulses to SD card
@@ -16,10 +17,11 @@ dcmd58	db 7Ah, 00h, 00h, 00h, 00h, 01h
 	public cmd55		; send command cmd55 (advanced command)
 	public acmd41		; send command acmd41
 	public cmd58		; send command cmd58
+	public cmd17		; send command cmd17
 	public sdrecvf		; receive single byte from SD
 
 ;-------------------------------------------------------------------------
-; send 10 blank pulses to SD card
+; send 12 blank pulses to SD card
 ;-------------------------------------------------------------------------
 cmdclr  proc
 	push bp			; put bp on stack
@@ -28,7 +30,7 @@ cmdclr  proc
 	mov al, 0FFh
 	out dx, al		; set shift register
 	inc dx			; set startclk command
-	mov cx, 10		; number of iterations
+	mov cx, 12		; number of iterations
 l1:	out dx, al		; keep pulsing clock
 	loop l1
 	pop bp
@@ -105,7 +107,77 @@ cmd58  	proc
 	ret
 cmd58	endp
 ;-------------------------------------------------------------------------
+; CMD17: Retrieve block at address
+;-------------------------------------------------------------------------
+cmd17	proc
+	push bp
+	mov bp,sp
+	mov dx, [bp+4]			; retrieve port
+	push di
+	push si
+
+	; Set a DI pointer to dcmd17 (resides in memory) and copy
+	; over bytes 01-04 corresponding to the address with the
+	; MSB first and the LSB last. Set the SI pointer to the stack
+	; address. Keep in mind that the stack has been incremented by
+	; 6 with respect to the initial situation, so the LSB on the stack
+	; is at 6 (push) + 2 (ret addr) + 2 (port) + 4 (addr) - 1 = 13.
+	mov di, OFFSET dcmd17		; set command array
+	inc di				; first position for address
+	mov si, bp			; works because DS=SS in SMALL
+	add si, 13
+	mov cx, 4			; copy 4 bytes
+	cld
+lpaddr: mov al,[si]			; grab address byte
+	stosb				; store AL in DI and increment DI
+	dec si				; decrement over stack
+	loop lpaddr			; copy 4 bytes
+
+	; The address is now copied from the stack and stored in the
+	; command array. Next, we need to grab the destination pointer
+	; to the buffer where we are going to store the block.
+	mov di, [bp+10]			; grab destination pointer
+	mov ax, ds
+	mov es, ax			; ensure ES = DS
+
+	; Set the SI pointer to the start of the command array and send
+	; the command to the SD card.
+	mov si, OFFSET dcmd17		; set pointer to command
+	call sendcmd			; run command, leaves DX to BASEPORT
+	cmp al,0			; check whether 0x00 response was found
+	jnz fail17			; if not, stop, fix stack and return
+
+	mov cx,100			; number of attempts
+trtk:	inc dx				; set to startclk
+	out dx,al			; pulse
+	dec dx				; set to retrieve
+	in al,dx			; retrieve byte
+	cmp al,0FEh			; check for token
+	jz rdbuf			; if found, go read buffer
+	dec cx				; decrement attempt counter
+	jz fail17			; if not found within attempts, exit
+	jmp trtk			; else next attempt
+
+rdbuf:  mov cx,514			; number of bytes + checksum
+	cld				; set stosb to increment
+rdlp:   inc dx				; set to startclk
+	out dx,al			; pulse
+	dec dx				; set to retrieve
+	in al,dx			; retrieve byte
+	stosb				; store byte in DI and increment
+	loop rdlp
+	mov al,00h
+	jmp st17
+
+fail17:	mov al,0FFh
+st17:	pop si
+	pop di
+	pop bp
+	ret
+cmd17	endp
+;-------------------------------------------------------------------------
 ; General send command, assumes DX contains BASE I/O address
+; After sending the command, DX is kept to BASE I/O address
 ;-------------------------------------------------------------------------
 sendcmd	proc
 	cld			; set incrementing direction
@@ -208,5 +280,19 @@ skip:	mov dl,al
 	int 21h
 	ret
 putnib  endp
-	end
-
+
+newline proc
+	push ax
+	push dx
+	mov dl,13
+	mov ah,02
+	int 21h
+	mov dl,10
+	mov ah,02
+	int 21h
+	pop dx
+	pop ax
+	ret
+newline endp
+
+	end

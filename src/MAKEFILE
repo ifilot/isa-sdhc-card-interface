@@ -1,8 +1,11 @@
-sdcard.exe: main.obj sdcmds.obj
-    tcc -ms -eISASD.EXE main.obj sdcmds.obj
+sdcard.exe: main.obj sdcmds.obj helpers.obj
+    tcc -ms -eISASD.EXE main.obj sdcmds.obj helpers.obj
 
 sdcmds.obj: sdcmds.asm
     tasm /mx sdcmds.asm
+
+helpers.obj: helpers.c
+    tcc -ms -c helpers.c
 
 main.obj: main.c
     tcc -ms -c main.c
