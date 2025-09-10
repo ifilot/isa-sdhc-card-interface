@@ -118,20 +118,29 @@ cmd17	proc
 
 	; Set a DI pointer to dcmd17 (resides in memory) and copy
 	; over bytes 01-04 corresponding to the address with the
-	; MSB first and the LSB last. Set the SI pointer to the stack
-	; address. Keep in mind that the stack has been incremented by
-	; 6 with respect to the initial situation, so the LSB on the stack
-	; is at 6 (push) + 2 (ret addr) + 2 (port) + 4 (addr) - 1 = 13.
+	; MSB first and the LSB last. Set the SI pointer to the last
+	; byte of the address on the stack and decrement over SI as
+	; the address is stored in lower endian format.
 	mov di, OFFSET dcmd17		; set command array
 	inc di				; first position for address
 	mov si, bp			; works because DS=SS in SMALL
-	add si, 13
+	add si, 9
 	mov cx, 4			; copy 4 bytes
-	cld
-lpaddr: mov al,[si]			; grab address byte
-	stosb				; store AL in DI and increment DI
-	dec si				; decrement over stack
+	cld  				; set increment direction
+lpaddr: mov al,[si]
+	mov [di],al
+	dec si
+	inc di
 	loop lpaddr			; copy 4 bytes
+
+	; print address (for debugging purposes)
+	mov cx,4
+	mov si, OFFSET dcmd17
+	inc si
+paddr:  mov al,[si]
+	call puthex
+	inc si
+	loop paddr
 
 	; The address is now copied from the stack and stored in the
 	; command array. Next, we need to grab the destination pointer
