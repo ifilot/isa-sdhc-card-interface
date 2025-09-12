@@ -6,11 +6,10 @@
 #include "fat32.h"
 #include "helpers.h"
 
-static struct Partition partition;
-
 int main() {
     sd_boot();
-    fat32_read_partition(&partition);
+    fat32_open_partition();
+    fat32_read_current_folder();
     sddis(BASEPORT);
 
     return 0;

@@ -7,7 +7,7 @@ sdcmds.obj: sdcmds.asm
 helpers.obj: helpers.c
     tcc -ms -c helpers.c
 
-fat32.obj: fat32.c fat32.h partn.h
+fat32.obj: fat32.c fat32.h fatstruc.h
     tcc -ms -c fat32.c
 
 main.obj: main.c

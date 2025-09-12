@@ -128,19 +128,18 @@ cmd17	proc
 	mov cx, 4			; copy 4 bytes
 	cld  				; set increment direction
 lpaddr: mov al,[si]
-	mov [di],al
+	stosb
 	dec si
-	inc di
 	loop lpaddr			; copy 4 bytes
 
 	; print address (for debugging purposes)
-	mov cx,4
-	mov si, OFFSET dcmd17
-	inc si
-paddr:  mov al,[si]
-	call puthex
-	inc si
-	loop paddr
+;	mov cx,4
+;	mov si, OFFSET dcmd17
+;	inc si
+;paddr:  mov al,[si]
+;	call puthex
+;	inc si
+;	loop paddr
 
 	; The address is now copied from the stack and stored in the
 	; command array. Next, we need to grab the destination pointer
