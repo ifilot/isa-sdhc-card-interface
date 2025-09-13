@@ -1,12 +1,10 @@
 #include "sd.h"
 
-unsigned char sd_boot() {
+int sd_boot() {
     int i, j, ctr;
     unsigned char v, c1, c2;
     unsigned char *ptr;
 
-    clrscr();
-    printf("SDCARD interface program\n");
     sd_set_miso_high(BASEPORT);
 
     ctr = 0;
@@ -19,18 +17,18 @@ unsigned char sd_boot() {
 	ctr++;
     }
     if(ctr == 100) {
-	printf("Cannot put card in idle mode. Exiting.");
+	printf("Cannot put card in idle mode, exiting...");
 	sddis(BASEPORT);
 	return 1;
     }
-    printf("CMD00 response: %02X\n", v);
+    /*printf("CMD00 response: %02X\n", v); */
     v = cmd08(BASEPORT);	/* send cmd08 */
-    printf("CMD08 response: %02X ", v);
+    /*printf("CMD08 response: %02X ", v); */
 
     /* retrieve remaining bytes of rsp5 */
     for(i=0; i<4; ++i) {
 	v = sdrecvf(BASEPORT);
-	printf("%02X ", v);
+	/*printf("%02X ", v);*/
     }
     printf("\n");
 
@@ -46,19 +44,20 @@ unsigned char sd_boot() {
 	ctr++;
     }
     if(ctr == 100) {
-	printf("Unable to send ACMD41 after %i attempts.", ctr);
+	/*printf("Unable to send ACMD41 after %i attempts.", ctr);*/
+	return -1;
     } else {
-	printf("ACMD41 response: %02X (%i)\n", v, ctr);
+	/*printf("ACMD41 response: %02X (%i)\n", v, ctr);*/
     }
 
     /* CMD58 - READ OCR */
     v = cmd58(BASEPORT);
-    printf("CMD58 response: %02X ", v);
+    /* printf("CMD58 response: %02X ", v); */
     for(i=0; i<4; ++i) {
 	v = sdrecvf(BASEPORT);
-	printf("%02X ", v);
+	/* printf("%02X ", v); */
     }
-    printf("\n");
+    /* printf("\n");*/
 
     return 0;
 }

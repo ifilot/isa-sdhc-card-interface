@@ -2,6 +2,7 @@
 
 static unsigned char sdbuf[514];
 static unsigned long fat32_linked_list[F32LLSZ];
+unsigned int fat32_nrfiles;
 
 struct FAT32Partition fat32_partition;
 struct FAT32Folder fat32_root_folder;
@@ -25,10 +26,10 @@ void fat32_open_partition() {
 
     /* grab start address of first partition */
     lba = *(unsigned long*)(sdbuf + 0x1C6);
-    printf("LBA: %08X\n", lba);
+    /*printf("LBA: %08X\n", lba);*/
 
     /* read the partition information */
-    cmd17(BASEPORT, lba, sdbuf);
+    fat32_read_sector(lba);
 
     /* store partition information */
     fat32_partition.bytes_per_sector = *(unsigned*)(sdbuf + 0x0B);
@@ -45,7 +46,7 @@ void fat32_open_partition() {
     /* grab information from root folder */
     cmd17(BASEPORT, fat32_partition.lba_addr_root_dir, sdbuf);
     memcpy(fat32_partition.volume_label, sdbuf, 11);
-    printf("Partition name: %11s\n", fat32_partition.volume_label);
+    /*printf("Partition name: %11s\n", fat32_partition.volume_label); */
 
     /* set both current folder and root folder */
     fat32_current_folder.cluster = fat32_partition.root_dir_first_cluster;
@@ -104,7 +105,7 @@ void fat32_read_dir(struct FAT32Folder* folder) {
 		    file->cluster = fat32_grab_cluster_address_from_fileblock(locptr);
 		    file->filesize = *(unsigned long*)(locptr + 0x1C);
 		    fctr++;
-		    printf("%i: %s %u bytes\n", fctr, file->basename, file->filesize);
+		    /* printf("%i: %s %u bytes\n", fctr, file->basename, file->filesize); */
 
 		    /* throw error message if we exceed buffer size */
 		    if(fctr > F32MXFL) {
@@ -123,6 +124,27 @@ void fat32_read_dir(struct FAT32Folder* folder) {
 
 void fat32_read_current_folder() {
     fat32_read_dir(&fat32_current_folder);
+    fat32_sort_files();
+    fat32_nrfiles = fat32_current_folder.nrfiles;
+}
+
+void fat32_set_current_folder(const struct FAT32File* entry) {
+    if(entry->cluster == 0x00000000) { /* check for ROOT */
+	fat32_current_folder = fat32_root_folder;
+    } else {
+	fat32_current_folder.cluster = entry->cluster;
+	fat32_current_folder.nrfiles = 0;
+	memcpy(fat32_current_folder.name, entry->basename, 11);
+    }
+    fat32_read_current_folder();
+}
+
+const struct FAT32File* fat32_get_file_entry(unsigned int id) {
+    if(id < fat32_current_folder.nrfiles) {
+	return &fat32_files[id];
+    } else {
+	return 0;
+    }
 }
 
 unsigned long fat32_calculate_sector_address(unsigned long cluster,
@@ -140,11 +162,44 @@ void fat32_build_linked_list(unsigned long nextcluster) {
 
     while(nextcluster < 0x0FFFFFF8 && nextcluster != 0 && ctr < F32LLSZ) {
 	fat32_linked_list[ctr] = nextcluster;
-	cmd17(BASEPORT, fat32_partition.fat_begin_lba + (nextcluster >> 7), sdbuf);
+	fat32_read_sector(fat32_partition.fat_begin_lba + (nextcluster >> 7));
 	item = nextcluster & 0x7F;
 	nextcluster = *(unsigned long*)(sdbuf + item * 4);
 	ctr++;
     }
+}
+
+void fat32_sort_files() {
+    qsort(fat32_files, fat32_current_folder.nrfiles, sizeof(struct FAT32File), fat32_file_compare);
+}
+
+void fat32_list_dir() {
+    unsigned int i=0;
+    struct FAT32File *file = fat32_files;
+    for(i=0; i<fat32_current_folder.nrfiles; ++i) {
+	if(file->attrib & MASK_DIR) {
+	    printf("%.8s %.3s %08lX DIR\n", file->basename, file->extension, file->cluster);
+	} else {
+	    printf("%.8s %.3s %08lX %lu\n", file->basename, file->extension, file->cluster, file->filesize);
+	}
+	file++;
+    }
+}
+
+int fat32_file_compare(const void* item1, const void* item2) {
+    const struct FAT32File *file1 = (const struct FAT32File*)item1;
+    const struct FAT32File *file2 = (const struct FAT32File*)item2;
+
+    unsigned char is_dir1 = (file1->attrib & MASK_DIR) != 0;
+    unsigned char is_dir2 = (file2->attrib & MASK_DIR) != 0;
+
+    if(is_dir1 && !is_dir2) {
+	return -1;
+    } else if(!is_dir1 && is_dir2) {
+	return 1;
+    }
+
+    return strcmp(file1->basename, file2->basename);
 }
 
 void fat32_read_sector(unsigned long addr) {
