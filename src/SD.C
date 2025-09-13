@@ -30,7 +30,7 @@ int sd_boot() {
 	v = sdrecvf(BASEPORT);
 	/*printf("%02X ", v);*/
     }
-    printf("\n");
+    /* printf("\n"); */
 
     /* TRY ACMD41 */
     v = 0xFF;

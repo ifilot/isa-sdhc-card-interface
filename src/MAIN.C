@@ -55,11 +55,12 @@ int state_main_menu() {
 		case 0x44:
 		    return STATE_EXIT;
 		case 0x3C:
+		    sd_boot();
 		    fat32_open_partition();
 		    view_print_volume_label(fat32_partition.volume_label);
 		    fat32_read_current_folder();
 		    view_print_files();
-		    view_set_cursor(0);
+		    view_reset_cursor();
 		    return STATE_SD;
 	    }
 	}
@@ -78,22 +79,29 @@ int state_sd() {
 	    switch(c) {
 		case 0x44:
 		    return STATE_EXIT;
+		case 0x49:
+		    view_move_cursor(-22);
+		break;
+		case 0x51:
+		    view_move_cursor(22);
+		break;
 	    }
 	}
 	switch(c) {
 	    case 0x50:
-		view_move_cursor(+1);
+		view_move_cursor(1);
 	    break;
 	    case 0x48:
 		view_move_cursor(-1);
 	    break;
+
 	    case 0x0D:
 		fpos = view_get_cursor_pos();
 		f = fat32_get_file_entry(fpos);
 		if(f->attrib & MASK_DIR) {
 		    fat32_set_current_folder(f);
 		    view_print_files();
-		    view_set_cursor(0);
+		    view_reset_cursor();
 		}
 	    break;
 	}
