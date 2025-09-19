@@ -3,14 +3,16 @@
 static int cursor_pos;
 static int start_pos;
 
-static void set_hl() {
-    textbackground(WHITE);
-    textcolor(BLACK);
+void view_set_cursor() {
+    gotoxy(1, cursor_pos+2);
+    putch('>');
+    set_rect_attr(1,cursor_pos+2,40,cursor_pos+2,BLACKONWHITE);
 }
 
-static void set_regular() {
-    textbackground(BLACK);
-    textcolor(WHITE);
+void view_remove_cursor() {
+    gotoxy(1,cursor_pos+2);
+    putch(' ');
+    set_rect_attr(1,cursor_pos+2,40,cursor_pos+2,WHITEONBLACK);
 }
 
 void view_print_files() {
@@ -32,7 +34,6 @@ void view_print_files() {
 }
 
 void view_init() {
-    /* textmode(BW80); */
     set_regular();
     window(1,1,80,25);
     clrscr(); /* clear complete screen */
@@ -42,10 +43,14 @@ void view_init() {
     clreol();
     cputs("SD-CARD EXPLORER 0.1");
 
-    gotoxy(1,25);
-    clreol();
-    cputs("F1: HELP | F2: CONNECT | F10: EXIT");
+    view_display_commands();
+}
 
+void view_display_commands() {
+    gotoxy(1,25);
+    set_hl();
+    clreol();
+    cputs("F1: HELP | F3: COPY | F10: EXIT");
     set_regular();
 }
 
@@ -58,24 +63,22 @@ void view_print_volume_label(const char* lbl) {
 }
 
 void view_close() {
+    window(1,1,80,25);
     textbackground(BLACK);
     textcolor(WHITE);
     clrscr();
 }
 
 void view_reset_cursor() {
-    gotoxy(1,2);
-    putch('>');
     cursor_pos = 0;
     start_pos = 0;
+    view_set_cursor();
 }
 
 void view_move_cursor(int d) {
     int old_start_pos = start_pos;
 
-    /* remove old cursor */
-    gotoxy(1,cursor_pos+2);
-    putch(' ');
+    view_remove_cursor();
 
     /* set new cursor position */
     cursor_pos += d;
@@ -118,12 +121,11 @@ void view_move_cursor(int d) {
 	break;
     }
 
-    gotoxy(1, cursor_pos+2);
-    putch('>');
+    view_set_cursor();
 }
 
 int view_get_cursor_pos() {
-    return cursor_pos;
+    return start_pos + cursor_pos;
 }
 
 void view_scroll_down() {
@@ -146,8 +148,8 @@ void view_print_entry(unsigned char pos, unsigned int id) {
     const struct FAT32File *entry = &fat32_files[id];
     gotoxy(1,pos);
     if(entry->attrib & MASK_DIR) {
-	cprintf("  %.11s [DIR]", entry->basename);
+	cprintf("  %-25s [DIR]", entry->basename);
     } else {
-	cprintf("  %.8s.%.3s %8lu", entry->basename, entry->extension, entry->filesize);
+	cprintf("  %.8s.%.3s           %8lu", entry->basename, entry->extension, entry->filesize);
     }
 }

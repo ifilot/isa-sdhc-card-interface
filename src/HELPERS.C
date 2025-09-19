@@ -1,5 +1,7 @@
 #include "helpers.h"
 
+static char screenbuf[80*25*2];
+
 static void print_line(unsigned char *ptr,
 		       unsigned char *asciiptr,
 		       unsigned addr) {
@@ -48,4 +50,50 @@ void print_block(unsigned char buf[]) {
 	ptr += 16;
 	asciiptr += 16;
     }
+}
+
+void set_rect_attr(int left, int top, int right, int bottom, unsigned char attr) {
+    unsigned width = right - left + 1;
+    unsigned height = bottom - top + 1;
+    unsigned cells = width * height;
+    unsigned i;
+
+    void *buf = malloc(cells * 2);
+    if(!buf) {
+	return;
+    }
+
+    if(gettext(left, top, right, bottom, buf)) {
+	unsigned char* p = (unsigned char*)buf;
+	for(i=0; i<cells; ++i) {
+	    p[2*i + 1] = attr;
+	}
+	puttext(left, top, right, bottom, buf);
+    }
+    free(buf);
+}
+
+void set_hl() {
+    textbackground(WHITE);
+    textcolor(BLACK);
+}
+
+void set_regular() {
+    textbackground(BLACK);
+    textcolor(LIGHTGRAY);
+}
+
+void store_screen() {
+    gettext(1,1,80,25,screenbuf);
+}
+
+void restore_screen() {
+    puttext(1,1,80,25,screenbuf);
+}
+
+void draw_textbox(int left, int top, int right, int bottom, const char *title) {
+    window(left, top, right, bottom);
+    clrscr();
+    gotoxy(left, top);
+    cprintf("%s", title);
 }

@@ -209,4 +209,40 @@ void fat32_read_sector(unsigned long addr) {
 unsigned long fat32_grab_cluster_address_from_fileblock(unsigned char* loc) {
     return ((unsigned long)*(unsigned*)(loc + 0x14)) << 16 |
 			   *(unsigned*)(loc + 0x1A);
+}
+
+void fat32_transfer_file(const struct FAT32File *f) {
+    unsigned long caddr = 0;
+    unsigned char ctr = 0;
+    unsigned long bcnt = 0;
+    int i;
+    FILE *outfile;
+
+    if(f->attrib & MASK_DIR) {
+	return;
+    }
+
+    outfile = fopen(f->basename, "wb");
+
+    fat32_build_linked_list(f->cluster);
+    while(fat32_linked_list[ctr] != 0xFFFFFFFF && ctr < F32LLSZ && bcnt < f->filesize) {
+	caddr = fat32_calculate_sector_address(fat32_linked_list[ctr], 0);
+
+	for(i=0; i<fat32_partition.sectors_per_cluster; ++i) {
+	    fat32_read_sector(caddr);
+
+	    if((f->filesize - bcnt) > 512) {
+		fwrite(sdbuf, sizeof(char), 512, outfile);
+	    } else {
+		fwrite(sdbuf, sizeof(char), f->filesize - bcnt, outfile);
+		break;
+	    }
+
+	    bcnt += 512;
+	}
+
+	ctr++;
+    }
+
+    fclose(outfile);
 }

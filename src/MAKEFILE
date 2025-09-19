@@ -1,5 +1,5 @@
-sdcard.exe: main.obj sd.obj sdcmds.obj helpers.obj fat32.obj view.obj
-    tcc -ms -eISASD.EXE main.obj sdcmds.obj helpers.obj fat32.obj sd.c view.obj
+sdcard.exe: main.obj sd.obj sdcmds.obj helpers.obj fat32.obj view.obj nav.obj
+    tcc -ms -eISASD.EXE main.obj sdcmds.obj helpers.obj fat32.obj sd.c view.obj nav.obj
 
 sdcmds.obj: sdcmds.asm
     tasm /mx sdcmds.asm
@@ -12,6 +12,9 @@ fat32.obj: fat32.c fat32.h fatstruc.h
 
 view.obj: view.c view.h
     tcc -ms -c view.c
+
+nav.obj : nav.c nav.h
+    tcc -ms -c nav.c
 
 main.obj: main.c
     tcc -ms -c main.c
