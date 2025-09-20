@@ -110,7 +110,15 @@ int state_sd() {
 	    case 0x3D:
 		fpos = view_get_cursor_pos();
 		f = fat32_get_file_entry(fpos);
-		fat32_transfer_file(f);
+		if(memcmp(f->basename, ".       ", 8) == 0 ||
+		   memcmp(f->basename, "..      ", 8) == 0) {
+		    break;
+		}
+		if(f->attrib & MASK_DIR) {
+		    fat32_transfer_folder(f);
+		} else {
+		    fat32_transfer_file(f);
+		}
 		nav_read_files();
 		nav_print_files();
 		nav_reset_cursor();

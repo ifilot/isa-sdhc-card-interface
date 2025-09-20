@@ -8,6 +8,7 @@ struct FAT32Partition fat32_partition;
 struct FAT32Folder fat32_root_folder;
 struct FAT32Folder fat32_current_folder;
 struct FAT32File fat32_files[F32MXFL];
+struct FAT32File fat32_folder_contents[F32MXFL];
 
 void fat32_open_partition() {
     unsigned long lba = 0x00000000;
@@ -65,7 +66,7 @@ void fat32_print_partition_info() {
     printf("Root directory sector: %08X\n", fat32_partition.lba_addr_root_dir);
 }
 
-void fat32_read_dir(struct FAT32Folder* folder) {
+void fat32_read_dir(struct FAT32Folder* folder, struct FAT32File buffer[]) {
     unsigned char ctr = 0;
     unsigned fctr = 0;
     unsigned i,j;
@@ -91,14 +92,13 @@ void fat32_read_dir(struct FAT32Folder* folder) {
 
 		/* early exit is a zero is read */
 		if(*locptr == 0x00) {
-		    file = &fat32_files[fctr];
 		    folder->nrfiles = fctr;
 		    return;
 		}
 
 		/* check if we are reading a file or a folder, if so, add it */
 		if((*(locptr + 0x0B) & 0x0F) == 0x00) {
-		    file = &fat32_files[fctr];
+		    file = &buffer[fctr];
 		    memcpy(file->basename, locptr, 11); /* file name */
 		    file->termbyte = 0;	/* by definition */
 		    file->attrib = *(locptr + 0x0B);
@@ -123,7 +123,7 @@ void fat32_read_dir(struct FAT32Folder* folder) {
 }
 
 void fat32_read_current_folder() {
-    fat32_read_dir(&fat32_current_folder);
+    fat32_read_dir(&fat32_current_folder, fat32_files);
     fat32_sort_files();
     fat32_nrfiles = fat32_current_folder.nrfiles;
 }
@@ -211,7 +211,7 @@ unsigned long fat32_grab_cluster_address_from_fileblock(unsigned char* loc) {
 			   *(unsigned*)(loc + 0x1A);
 }
 
-void fat32_transfer_file(const struct FAT32File *f) {
+void fat32_transfer_file(const struct FAT32File *f, const char* path) {
     unsigned long caddr = 0;
     unsigned char ctr = 0;
     unsigned long bcnt = 0;
@@ -222,7 +222,7 @@ void fat32_transfer_file(const struct FAT32File *f) {
 	return;
     }
 
-    outfile = fopen(f->basename, "wb");
+    outfile = fopen(path, "wb");
 
     fat32_build_linked_list(f->cluster);
     while(fat32_linked_list[ctr] != 0xFFFFFFFF && ctr < F32LLSZ && bcnt < f->filesize) {
@@ -239,10 +239,139 @@ void fat32_transfer_file(const struct FAT32File *f) {
 	    }
 
 	    bcnt += 512;
+	    caddr++; /* next sector */
 	}
 
 	ctr++;
     }
 
     fclose(outfile);
+}
+
+void fat32_transfer_folder(const struct FAT32File* f) {
+    static struct FAT32Folder folders[F32MXDIR];
+    unsigned nrfolders = 1;
+    unsigned newfolders = 1;
+    unsigned startfolder = 0;
+    unsigned i,j,k;
+    const struct FAT32File* fptr;
+    char path[256];
+    int ret;
+
+    /* initialize iterative procedure */
+    memcpy(folders[0].name, f->basename, 11);
+    folders[0].cluster = f->cluster;
+    folders[0].nrfiles = 0;
+    folders[0].attrib = 0x00;
+    folders[0].reference = -1;
+
+    /* recursively go over the folders until no unscanned folders are found */
+    while(newfolders != 0) {
+	startfolder = nrfolders - newfolders;
+	newfolders = 0;
+	for(i=startfolder; i<nrfolders; ++i) {
+	    /* read folder contents */
+	    fat32_read_dir(&folders[i], fat32_folder_contents);
+
+	    /* loop over files and look for subfolders */
+	    for(j=0; j<folders[i].nrfiles; ++j) {
+		fptr = &fat32_folder_contents[j];
+
+		/* skip self and parent folder */
+		if(memcmp(fptr->basename, ".       ", 8) == 0 ||
+		    memcmp(fptr->basename, "..      ", 8) == 0) {
+		    continue;
+		}
+
+		/* if entry is a folder, add it to the list */
+		if(fat32_folder_contents[j].attrib & MASK_DIR) {
+		    memcpy(folders[nrfolders].name, fptr->basename, 11);
+		    folders[nrfolders].cluster = fptr->cluster;
+		    folders[nrfolders].attrib = 0x00;
+		    folders[nrfolders].nrfiles = 0;
+		    folders[nrfolders].reference = i;
+		    newfolders++;
+		    nrfolders++;
+		}
+	    }
+	    /* tag folder as being scanned */
+	    folders[i].attrib = 0x01;
+	}
+    }
+
+    store_screen();
+    clrscr();
+    gotoxy(1,1);
+    printf("Copying %i subfolders:\n", nrfolders);
+    for(i=0; i<nrfolders; ++i) {
+	fat32_build_path(folders, i, path);
+	printf(" > %.8s: %s", folders[i].name, path);
+	ret = mkdir(path);
+
+	/* check here if path exists */
+	/* code ... */
+	if(ret == 0) {
+	    printf(" [OK]\n");
+	    fat32_transfer_files_in_folder(&folders[i], path);
+	} else {
+	    printf(" [ERR]\n");
+	    return;	/* return on error */
+	}
+    }
+    getch();
+    restore_screen();
+}
+
+void fat32_build_path(struct FAT32Folder folders[], unsigned id, char path[]) {
+    unsigned ll[20];
+    unsigned i,N;
+    unsigned n;
+    const char* name;
+    const char* p;
+
+    /* construct linked list */
+    ll[0] = id;
+    i = 0;
+
+    /* populate linked list */
+    while(folders[ll[i]].reference != -1 && i<20) {
+	i++;
+	ll[i] = (unsigned)folders[ll[i-1]].reference;
+    }
+    N = i+1; /* number of path sections */
+
+    /* build path */
+    memset(path, 0x00, 256);
+    n = 0;
+    for(i=0; i<N; ++i) {
+	name = folders[ll[N-i-1]].name;
+	p = (const char*)strchr(name, (int)' ');
+	memcpy(&path[n], name, (size_t)(p - name));
+	n += (unsigned)(p - name);
+	path[n++] = '\\';
+    }
+    path[--n] = 0; /* remove trailing slash */
+}
+
+void fat32_transfer_files_in_folder(struct FAT32Folder* f, const char *basepath) {
+    unsigned i;
+    const struct FAT32File* entry;
+    char path[256];
+    char filename[14];
+
+    /* read folder */
+    fat32_read_dir(f, fat32_folder_contents);
+
+    for(i=0; i<f->nrfiles; ++i) {
+	entry = &fat32_folder_contents[i];
+	if(entry->attrib & MASK_DIR) {
+	    continue;
+	} else {
+	    strcpy(path, basepath);
+	    sprintf(filename, "\\%.8s.%.3s", entry->basename, entry->extension);
+	    strcat(path, filename);
+	    printf("    %s\n", path);
+	    fat32_transfer_file(entry, path);
+	}
+    }
 }
