@@ -10,7 +10,7 @@ helpers.obj: helpers.c
 fat32.obj: fat32.c fat32.h fatstruc.h
     tcc -ms -c fat32.c
 
-view.obj: view.c view.h
+view.obj: view.c view.h version.h
     tcc -ms -c view.c
 
 nav.obj : nav.c nav.h

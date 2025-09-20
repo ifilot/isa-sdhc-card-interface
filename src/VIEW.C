@@ -41,7 +41,7 @@ void view_init() {
     gotoxy(1,1);
     set_hl();
     clreol();
-    cputs("SD-CARD EXPLORER v0.2");
+    cprintf("SD-CARD EXPLORER v%i.%i.%i", VERSION_MAJOR, VERSION_MINOR, VERSION_PATH);
 
     view_display_commands();
 }

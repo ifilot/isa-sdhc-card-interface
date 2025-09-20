@@ -218,6 +218,11 @@ int fat32_transfer_file(const struct FAT32File *f, const char* path) {
     int i;
     FILE *outfile;
 
+    if(f->filesize > (512UL * (unsigned long)fat32_partition.sectors_per_cluster * F32LLSZ)) {
+	printf("File too large to be copied!\n");
+	return -1;
+    }
+
     if(f->attrib & MASK_DIR) {
 	return -1;
     }
