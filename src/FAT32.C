@@ -211,7 +211,7 @@ unsigned long fat32_grab_cluster_address_from_fileblock(unsigned char* loc) {
 			   *(unsigned*)(loc + 0x1A);
 }
 
-void fat32_transfer_file(const struct FAT32File *f, const char* path) {
+int fat32_transfer_file(const struct FAT32File *f, const char* path) {
     unsigned long caddr = 0;
     unsigned char ctr = 0;
     unsigned long bcnt = 0;
@@ -219,7 +219,7 @@ void fat32_transfer_file(const struct FAT32File *f, const char* path) {
     FILE *outfile;
 
     if(f->attrib & MASK_DIR) {
-	return;
+	return -1;
     }
 
     outfile = fopen(path, "wb");
@@ -246,6 +246,8 @@ void fat32_transfer_file(const struct FAT32File *f, const char* path) {
     }
 
     fclose(outfile);
+
+    return 0;
 }
 
 void fat32_transfer_folder(const struct FAT32File* f) {
@@ -255,7 +257,7 @@ void fat32_transfer_folder(const struct FAT32File* f) {
     unsigned startfolder = 0;
     unsigned i,j,k;
     const struct FAT32File* fptr;
-    char path[256];
+    char path[MAXPATH];
     int ret;
 
     /* initialize iterative procedure */
@@ -302,22 +304,29 @@ void fat32_transfer_folder(const struct FAT32File* f) {
     store_screen();
     clrscr();
     gotoxy(1,1);
-    printf("Copying %i subfolders:\n", nrfolders);
+    printf("START TRANSFER...\n");
     for(i=0; i<nrfolders; ++i) {
 	fat32_build_path(folders, i, path);
-	printf(" > %.8s: %s", folders[i].name, path);
-	ret = mkdir(path);
+	printf(">> DIR: %s", path);
 
-	/* check here if path exists */
-	/* code ... */
-	if(ret == 0) {
-	    printf(" [OK]\n");
-	    fat32_transfer_files_in_folder(&folders[i], path);
+	if(folder_exists(path)) {
+	    printf(" [EXISTS]\n");
 	} else {
-	    printf(" [ERR]\n");
-	    return;	/* return on error */
+	    ret = mkdir(path);
+
+	    if(ret == 0) {
+		printf(" [CREATED]\n");
+	    } else {
+		printf(" [ERROR]\n");
+		return;
+	    }
 	}
+
+	/* if no errors were encountered creating the folder, start
+	   transferring all the files */
+	fat32_transfer_files_in_folder(&folders[i], path);
     }
+    printf("-- Transfer complete, press any key to return to navigator. --");
     getch();
     restore_screen();
 }
@@ -341,7 +350,7 @@ void fat32_build_path(struct FAT32Folder folders[], unsigned id, char path[]) {
     N = i+1; /* number of path sections */
 
     /* build path */
-    memset(path, 0x00, 256);
+    memset(path, 0x00, MAXPATH);
     n = 0;
     for(i=0; i<N; ++i) {
 	name = folders[ll[N-i-1]].name;
@@ -356,8 +365,11 @@ void fat32_build_path(struct FAT32Folder folders[], unsigned id, char path[]) {
 void fat32_transfer_files_in_folder(struct FAT32Folder* f, const char *basepath) {
     unsigned i;
     const struct FAT32File* entry;
-    char path[256];
-    char filename[14];
+    char path[MAXPATH];
+    char filename[13];
+    char c;
+    unsigned ok = 0;
+    unsigned persistent = 0;
 
     /* read folder */
     fat32_read_dir(f, fat32_folder_contents);
@@ -367,11 +379,45 @@ void fat32_transfer_files_in_folder(struct FAT32Folder* f, const char *basepath)
 	if(entry->attrib & MASK_DIR) {
 	    continue;
 	} else {
+	    ok = 1;
 	    strcpy(path, basepath);
-	    sprintf(filename, "\\%.8s.%.3s", entry->basename, entry->extension);
+	    strcat(path, "\\");
+	    build_dos_filename(entry, filename);
 	    strcat(path, filename);
-	    printf("    %s\n", path);
-	    fat32_transfer_file(entry, path);
+	    printf(" + File: %s", path);
+	    if(file_exists(path)) {
+		ok = 0;
+		if(!persistent) {
+		    printf("\n File exists; Overwrite? (y/n/a)");
+		    while(1) {
+			c = getch();
+			if(c == 'y') {
+			    putch(c);
+			    ok = 1;
+			    break;
+			} else if(c == 'n') {
+			    putch(c);
+			    printf(" [SKIP]\n");
+			    break;
+			} else if(c == 'a') {
+			    putch(c);
+			    persistent = 1;
+			    ok = 1;
+			    break;
+			}
+		    }
+		} else {
+		    printf(" (A) ");
+		    ok = 1; /* ok is always true when persistent is 1 */
+		}
+	    }
+	    if(ok == 1) {
+		if(fat32_transfer_file(entry, path) == 0) {
+		    printf(" (%lu bytes) [OK]\n", entry->filesize);
+		} else {
+		    printf(" [FAIL]\n");
+		}
+	    }
 	}
     }
 }

@@ -96,4 +96,57 @@ void draw_textbox(int left, int top, int right, int bottom, const char *title) {
     clrscr();
     gotoxy(left, top);
     cprintf("%s", title);
+}
+
+int folder_exists(const char* path) {
+    struct ffblk ff;
+    if(findfirst(path, &ff, FA_DIREC) == 0) {
+	return (ff.ff_attrib & FA_DIREC) != 0;
+    }
+    return 0;
+}
+
+int file_exists(const char* path) {
+    struct ffblk ff;
+    if(findfirst(path, &ff, FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_ARCH) == 0) {
+	return (ff.ff_attrib & FA_DIREC) == 0;
+    }
+    return 0;
+}
+
+void disable_cursor() {
+    union REGS r;
+    r.h.ah = 1;
+    r.h.ch = 0x20;
+    r.h.cl = 0x20;
+    int86(0x10, &r, &r);
+}
+
+void enable_cursor() {
+    union REGS r;
+    r.h.ah = 1;
+    r.h.ch = 6;
+    r.h.cl = 7;
+    int86(0x10, &r, &r);
+}
+
+void build_dos_filename(const struct FAT32File* f, char *path) {
+    char base[9];
+    char ext[4];
+    char* ptr;
+
+    memset(path, 0, 13);
+    memcpy(base, f->basename, 8);
+    base[8] = 0;
+    ptr = (char*)strchr(base, ' ');
+    *ptr = 0;
+    strcat(path, base);
+    memcpy(ext, f->extension, 3);
+    ext[3] = 0;
+    ptr = (char*)strchr(ext, ' ');
+    *ptr = 0;
+    if(ptr != ext) {
+	strcat(path, ".");
+    }
+    strcat(path, ext);
 }

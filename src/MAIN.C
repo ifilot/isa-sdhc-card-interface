@@ -31,6 +31,7 @@ int main() {
 
     /* initialize view */
     view_init();
+    disable_cursor();
 
     /* initialize navigation */
     nav_init();
@@ -64,6 +65,9 @@ int main() {
     /* restore starting cwd */
     chdir(cwd);
 
+    /* restore cursor */
+    enable_cursor();
+
     return 0;
 }
 
@@ -85,6 +89,7 @@ int state_sd() {
     unsigned char c;
     int fpos;
     const struct FAT32File* f;
+    char filename[13];
 
     while(1) {
 	c = getch();
@@ -117,11 +122,13 @@ int state_sd() {
 		if(f->attrib & MASK_DIR) {
 		    fat32_transfer_folder(f);
 		} else {
-		    fat32_transfer_file(f);
+		    build_dos_filename(f, filename);
+		    fat32_transfer_file(f, filename);
 		}
 		nav_read_files();
 		nav_print_files();
 		nav_reset_cursor();
+		nav_remove_cursor();
 	    break;
 	    case 0x50:
 		view_move_cursor(1);
