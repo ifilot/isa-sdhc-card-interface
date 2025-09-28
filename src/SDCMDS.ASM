@@ -45,7 +45,9 @@ cmd00  	proc
 	mov dx, [bp+4]
 	push si
 	mov si,OFFSET dcmd00		; set pointer
+	call sdopen
 	call sendcmd
+	call sdclose
 	pop si
 	pop bp
 	ret
@@ -56,11 +58,19 @@ cmd00	endp
 cmd08  	proc
 	push bp
 	mov bp,sp
+	push di
 	mov dx, [bp+4]
+	mov di, [bp+6]
+	mov ax, ds
+	mov es, ax
 	push si
 	mov si,OFFSET dcmd08		; set pointer
+	call sdopen
 	call sendcmd
+	call recv5
+	call sdclose
 	pop si
+	pop di
 	pop bp
 	ret
 cmd08	endp
@@ -73,7 +83,9 @@ cmd55  	proc
 	mov dx, [bp+4]
 	push si
 	mov si,OFFSET dcmd55		; set pointer
+	call sdopen
 	call sendcmd
+	call sdclose
 	pop si
 	pop bp
 	ret
@@ -87,7 +99,9 @@ acmd41 	proc
 	mov dx, [bp+4]
 	push si
 	mov si,OFFSET dacmd41		; set pointer
+	call sdopen
 	call sendcmd
+	call sdclose
 	pop si
 	pop bp
 	ret
@@ -98,11 +112,19 @@ acmd41	endp
 cmd58  	proc
 	push bp
 	mov bp,sp
+	push di
 	mov dx, [bp+4]
+	mov di, [bp+6]
+	mov ax, ds
+	mov es, ax
 	push si
 	mov si,OFFSET dcmd58		; set pointer
+	call sdopen
 	call sendcmd
+	call recv5
+	call sdclose
 	pop si
+	pop di
 	pop bp
 	ret
 cmd58	endp
@@ -151,14 +173,15 @@ lpaddr: mov al,[si]
 	; Set the SI pointer to the start of the command array and send
 	; the command to the SD card.
 	mov si, OFFSET dcmd17		; set pointer to command
+	call sdopen
 	call sendcmd			; run command, leaves DX to BASEPORT
 	cmp al,0			; check whether 0x00 response was found
 	jnz fail17			; if not, stop, fix stack and return
 
-	mov cx,100			; number of attempts
-trtk:	inc dx				; set to startclk
+	mov cx,1000			; number of attempts
+trtk:	inc dx				; SDBASE+1
 	out dx,al			; pulse
-	dec dx				; set to retrieve
+	dec dx				; SDBASE
 	in al,dx			; retrieve byte
 	cmp al,0FEh			; check for token
 	jz rdbuf			; if found, go read buffer
@@ -168,17 +191,17 @@ trtk:	inc dx				; set to startclk
 
 rdbuf:  mov cx,514			; number of bytes + checksum
 	cld				; set stosb to increment
-rdlp:   inc dx				; set to startclk
-	out dx,al			; pulse
-	dec dx				; set to retrieve
-	in al,dx			; retrieve byte
+	inc dx				; kickstart read cycle with a pulse
+	out dx,al			; send the pulse
+rdlp:	in al,dx			; retrieve byte, followed by pulse
 	stosb				; store byte in DI and increment
 	loop rdlp
 	mov al,00h
 	jmp st17
 
 fail17:	mov al,0FFh
-st17:	pop si
+st17:   call sdclose
+	pop si
 	pop di
 	pop bp
 	ret
@@ -191,16 +214,12 @@ sendcmd	proc
 	cld			; set incrementing direction
 	mov cx, 6		; set number of bytes
 l2:	lodsb			; load byte from SI into AL and incr SI
-	;call puthex
-	out dx, al		; put value in register
-	inc dx			; increment DX for startclk I/O address
-	out dx, al		; start clk
-	dec dx			; decrement DX for base I/O address
+	out dx, al		; put value in register and pulse
 	loop l2
 	mov cx, 100		; set counter
-check:	inc dx			; reset to clk start
-	out dx, al		; pulse
-	dec dx			; set to retrieve
+check:  inc dx			; BASE+1
+	out dx,al		; give pulse
+	dec dx			; BASE
 	in al, dx		; retrieve byte
 	cmp al,0FFh		; check if equal to 0xFF
 	jne endrun		; if not, return value
@@ -209,6 +228,46 @@ check:	inc dx			; reset to clk start
 	jmp check		; else try again
 endrun: ret
 sendcmd	endp
+;-------------------------------------------------------------------------
+; Open SD card
+;-------------------------------------------------------------------------
+sdopen  proc
+	push dx
+	mov al,0FFh
+	out dx,al		; send 0xFF while SD card disabled
+	add dx,3
+	out dx,al		; pull /CS low
+	pop dx
+	ret
+sdopen  endp
+;-------------------------------------------------------------------------
+; Close SD card
+;-------------------------------------------------------------------------
+sdclose proc
+	push ax
+	push dx
+	mov al,0FFh
+	out dx,al		; send 0xFF while SD card active
+	add dx,2
+	out dx,al		; pull /CS high
+	pop dx
+	pop ax
+	ret
+sdclose endp
+;
+;
+;
+recv5	proc
+	stosb			; store initial value in AL
+	mov cx,4
+	inc dx			; set to BASE+1
+	out dx,al		; regular pulse
+.nb:    in al,dx		; read followed by pulse
+	stosb			; store other values in AL
+	loop .nb
+	dec dx			; set to BASE
+	ret
+recv5	endp
 ;-------------------------------------------------------------------------
 ; Receive byte from SD card; assumes register has 0xFF
 ;-------------------------------------------------------------------------
@@ -249,7 +308,7 @@ sddis   proc
 	push bp
 	mov bp,sp
 	mov dx, [bp+4]		; set base I/O port
-	add dx, 3		; set deact port BASE | 02
+	add dx, 3		; set deact port BASE | 03
 	mov al, 0FFh		; some dummy value
 	out dx, al		; and send I/O instruction
 	pop bp

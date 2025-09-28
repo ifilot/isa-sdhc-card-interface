@@ -422,7 +422,7 @@ void fat32_transfer_files_in_folder(struct FAT32Folder* f, const char *basepath)
 		if(fat32_transfer_file(entry, path) == 0) {
 		    toc = clock();
 		    printf(" (%lu bytes; %.2f s) [OK]\n", entry->filesize,
-			(toc - tic) / CLK_TCK);
+		      (toc - tic) / CLK_TCK);
 		} else {
 		    printf(" [FAIL]\n");
 		}
