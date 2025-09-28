@@ -11752,16 +11752,6 @@
 	)
 	(wire
 		(pts
-			(xy 336.55 209.55) (xy 332.74 209.55)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a1f7fc55-0a75-4249-ac39-ff0205c52d22")
-	)
-	(wire
-		(pts
 			(xy 146.05 237.49) (xy 143.51 237.49)
 		)
 		(stroke
@@ -11799,6 +11789,16 @@
 			(type default)
 		)
 		(uuid "a9308cd7-ba02-449a-bbde-2d0eeb8376ba")
+	)
+	(wire
+		(pts
+			(xy 351.79 226.06) (xy 358.14 226.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aab1dfd8-3dbd-44ac-aa14-7171c68663c5")
 	)
 	(wire
 		(pts
@@ -11969,6 +11969,16 @@
 			(type default)
 		)
 		(uuid "c0bc18d7-b03c-49e8-b58e-0eaac5ea44e7")
+	)
+	(wire
+		(pts
+			(xy 351.79 242.57) (xy 358.14 242.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c584eb6a-76ae-4af2-adbe-370801947705")
 	)
 	(wire
 		(pts
@@ -12159,6 +12169,16 @@
 			(type default)
 		)
 		(uuid "dff58129-990a-4f1e-a4a9-b9ce3ae68e89")
+	)
+	(wire
+		(pts
+			(xy 332.74 209.55) (xy 358.14 209.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e18a91f9-f784-4fc9-8883-3a482c14504a")
 	)
 	(wire
 		(pts
@@ -12591,6 +12611,28 @@
 		(uuid "07954b79-7161-490a-a90e-e5b247321420")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 104.5586 40.7025 0)
+			(effects
+				(font
+					(size 1 1)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "CS"
+		(shape input)
+		(at 309.88 209.55 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right)
+		)
+		(uuid "0e653653-7e93-441b-92bb-12ff6b7b7049")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 305.5773 209.55 0)
 			(effects
 				(font
 					(size 1 1)
@@ -13320,28 +13362,6 @@
 					(size 1 1)
 				)
 				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "~{CS}"
-		(shape input)
-		(at 309.88 209.55 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify right)
-		)
-		(uuid "525b766f-9afe-460b-b9d5-ec7ba5e18c96")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 305.5773 209.55 0)
-			(effects
-				(font
-					(size 1 1)
-				)
-				(justify right)
 				(hide yes)
 			)
 		)
@@ -15793,7 +15813,7 @@
 	)
 	(symbol
 		(lib_id "power:VCC")
-		(at 351.79 226.06 270)
+		(at 365.76 226.06 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -15801,7 +15821,7 @@
 		(dnp no)
 		(uuid "106af631-1bec-40dc-aff4-28779f38cb24")
 		(property "Reference" "#PWR086"
-			(at 347.98 226.06 0)
+			(at 361.95 226.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15810,7 +15830,7 @@
 			)
 		)
 		(property "Value" "VCC"
-			(at 358.775 226.06 90)
+			(at 372.745 226.06 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15819,7 +15839,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 351.79 226.06 0)
+			(at 365.76 226.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15828,7 +15848,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 351.79 226.06 0)
+			(at 365.76 226.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15837,7 +15857,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"VCC\""
-			(at 351.79 226.06 0)
+			(at 365.76 226.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18069,46 +18089,46 @@
 			)
 		)
 		(pin "1"
-			(uuid "3bc931d1-30cd-4853-b08e-430c94184468")
+			(uuid "3bc931d1-30cd-4853-b08e-430c94184469")
 		)
 		(pin "10"
-			(uuid "e8a56249-b967-48a4-9f23-7882e7580bb9")
+			(uuid "e8a56249-b967-48a4-9f23-7882e7580bba")
 		)
 		(pin "4"
-			(uuid "1dd37e10-1ed2-4c7b-a882-733049a1acc9")
+			(uuid "1dd37e10-1ed2-4c7b-a882-733049a1acca")
 		)
 		(pin "11"
-			(uuid "89f5ffa4-2743-4718-b124-9f12f55464b2")
+			(uuid "89f5ffa4-2743-4718-b124-9f12f55464b3")
 		)
 		(pin "5"
-			(uuid "284eece8-f414-463d-9f43-f85624b54929")
+			(uuid "284eece8-f414-463d-9f43-f85624b5492a")
 		)
 		(pin "6"
-			(uuid "847abbdb-efef-4eef-ae63-f0067e29b416")
+			(uuid "847abbdb-efef-4eef-ae63-f0067e29b417")
 		)
 		(pin "12"
-			(uuid "4ba47fc9-a0ae-430d-9187-beda20687b3e")
+			(uuid "4ba47fc9-a0ae-430d-9187-beda20687b3f")
 		)
 		(pin "14"
-			(uuid "e5a73ba9-30cd-45e3-a959-772a78d41b38")
+			(uuid "e5a73ba9-30cd-45e3-a959-772a78d41b39")
 		)
 		(pin "2"
-			(uuid "cb6f6f54-c752-417a-aa0c-1d50ff4067c0")
+			(uuid "cb6f6f54-c752-417a-aa0c-1d50ff4067c1")
 		)
 		(pin "3"
-			(uuid "2f153623-e3f0-4d7b-8e55-46ec3b4292b4")
+			(uuid "2f153623-e3f0-4d7b-8e55-46ec3b4292b5")
 		)
 		(pin "9"
-			(uuid "83a99545-2dfa-4ecc-956a-b268b2020a6e")
+			(uuid "83a99545-2dfa-4ecc-956a-b268b2020a6f")
 		)
 		(pin "8"
-			(uuid "48df6811-4424-493a-85fb-816c3669621e")
+			(uuid "48df6811-4424-493a-85fb-816c3669621f")
 		)
 		(pin "7"
-			(uuid "927ae33d-d256-4625-b806-b599f7ac5cfe")
+			(uuid "927ae33d-d256-4625-b806-b599f7ac5cff")
 		)
 		(pin "13"
-			(uuid "c6f23060-011b-480a-b561-fdeb18c08178")
+			(uuid "c6f23060-011b-480a-b561-fdeb18c08179")
 		)
 		(instances
 			(project ""
@@ -18823,46 +18843,46 @@
 			)
 		)
 		(pin "1"
-			(uuid "3bc931d1-30cd-4853-b08e-430c94184468")
+			(uuid "3bc931d1-30cd-4853-b08e-430c9418446a")
 		)
 		(pin "10"
-			(uuid "e8a56249-b967-48a4-9f23-7882e7580bb9")
+			(uuid "e8a56249-b967-48a4-9f23-7882e7580bbb")
 		)
 		(pin "4"
-			(uuid "1dd37e10-1ed2-4c7b-a882-733049a1acc9")
+			(uuid "1dd37e10-1ed2-4c7b-a882-733049a1accb")
 		)
 		(pin "11"
-			(uuid "89f5ffa4-2743-4718-b124-9f12f55464b2")
+			(uuid "89f5ffa4-2743-4718-b124-9f12f55464b4")
 		)
 		(pin "5"
-			(uuid "284eece8-f414-463d-9f43-f85624b54929")
+			(uuid "284eece8-f414-463d-9f43-f85624b5492b")
 		)
 		(pin "6"
-			(uuid "847abbdb-efef-4eef-ae63-f0067e29b416")
+			(uuid "847abbdb-efef-4eef-ae63-f0067e29b418")
 		)
 		(pin "12"
-			(uuid "4ba47fc9-a0ae-430d-9187-beda20687b3e")
+			(uuid "4ba47fc9-a0ae-430d-9187-beda20687b40")
 		)
 		(pin "14"
-			(uuid "e5a73ba9-30cd-45e3-a959-772a78d41b38")
+			(uuid "e5a73ba9-30cd-45e3-a959-772a78d41b3a")
 		)
 		(pin "2"
-			(uuid "cb6f6f54-c752-417a-aa0c-1d50ff4067c0")
+			(uuid "cb6f6f54-c752-417a-aa0c-1d50ff4067c2")
 		)
 		(pin "3"
-			(uuid "2f153623-e3f0-4d7b-8e55-46ec3b4292b4")
+			(uuid "2f153623-e3f0-4d7b-8e55-46ec3b4292b6")
 		)
 		(pin "9"
-			(uuid "83a99545-2dfa-4ecc-956a-b268b2020a6e")
+			(uuid "83a99545-2dfa-4ecc-956a-b268b2020a70")
 		)
 		(pin "8"
-			(uuid "48df6811-4424-493a-85fb-816c3669621e")
+			(uuid "48df6811-4424-493a-85fb-816c36696220")
 		)
 		(pin "7"
-			(uuid "927ae33d-d256-4625-b806-b599f7ac5cfe")
+			(uuid "927ae33d-d256-4625-b806-b599f7ac5d00")
 		)
 		(pin "13"
-			(uuid "c6f23060-011b-480a-b561-fdeb18c08178")
+			(uuid "c6f23060-011b-480a-b561-fdeb18c0817a")
 		)
 		(instances
 			(project ""
@@ -18935,6 +18955,74 @@
 			(project "port2-sdcard-interface"
 				(path "/075aea89-321c-44ba-b0b1-8b82a6b1f518"
 					(reference "#PWR054")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 361.95 209.55 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "42da5cac-a8b1-4009-8eb8-c8ab9746da89")
+		(property "Reference" "R2"
+			(at 361.95 203.2 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "180"
+			(at 361.95 205.74 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+			(at 361.95 211.328 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 361.95 209.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 361.95 209.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a2387730-0425-41c9-97d8-488a4e8adb19")
+		)
+		(pin "2"
+			(uuid "5e2bfeb3-e934-482c-a662-1e12b1261648")
+		)
+		(instances
+			(project ""
+				(path "/075aea89-321c-44ba-b0b1-8b82a6b1f518"
+					(reference "R2")
 					(unit 1)
 				)
 			)
@@ -20705,73 +20793,6 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 336.55 209.55 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "5f57c0b2-be41-47a5-a0d0-d9d5d45d30b4")
-		(property "Reference" "#PWR088"
-			(at 342.9 209.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 340.36 209.5499 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 336.55 209.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 336.55 209.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 336.55 209.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "34488519-02dd-44d9-a7bb-d3779abfcd56")
-		)
-		(instances
-			(project "isa-sdcard"
-				(path "/075aea89-321c-44ba-b0b1-8b82a6b1f518"
-					(reference "#PWR088")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
 		(at 105.41 194.31 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -20838,7 +20859,7 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 328.93 209.55 180)
+		(at 328.93 209.55 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -20847,7 +20868,7 @@
 		(fields_autoplaced yes)
 		(uuid "651a6aab-fba0-42ae-8627-e73f2f0af69b")
 		(property "Reference" "D1"
-			(at 330.5175 201.93 0)
+			(at 327.3425 203.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20855,7 +20876,7 @@
 			)
 		)
 		(property "Value" "~{CS}"
-			(at 330.5175 204.47 0)
+			(at 327.3425 205.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22909,6 +22930,74 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 361.95 226.06 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "99d893b7-9e92-4011-9c28-2b078b132306")
+		(property "Reference" "R3"
+			(at 361.95 219.71 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "180"
+			(at 361.95 222.25 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+			(at 361.95 227.838 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 361.95 226.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 361.95 226.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f430d4db-8afc-4201-aee1-d1058bab9b4a")
+		)
+		(pin "2"
+			(uuid "dc069df8-9b99-4bdb-b4ba-f2dc61802356")
+		)
+		(instances
+			(project "isa-sdcard"
+				(path "/075aea89-321c-44ba-b0b1-8b82a6b1f518"
+					(reference "R3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 160.02 273.05 0)
 		(unit 1)
@@ -23501,6 +23590,72 @@
 			(project "isa-sdcard"
 				(path "/075aea89-321c-44ba-b0b1-8b82a6b1f518"
 					(reference "C6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:VCC")
+		(at 365.76 209.55 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a0404adc-fb2d-4639-9b86-21a38ef0cc97")
+		(property "Reference" "#PWR078"
+			(at 361.95 209.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "VCC"
+			(at 372.745 209.55 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 365.76 209.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 365.76 209.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VCC\""
+			(at 365.76 209.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e461207f-3f17-45ab-bd82-9c58ddc69b13")
+		)
+		(instances
+			(project "isa-sdcard"
+				(path "/075aea89-321c-44ba-b0b1-8b82a6b1f518"
+					(reference "#PWR078")
 					(unit 1)
 				)
 			)
@@ -26005,7 +26160,7 @@
 	)
 	(symbol
 		(lib_id "power:VCC")
-		(at 351.79 242.57 270)
+		(at 365.76 242.57 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -26013,7 +26168,7 @@
 		(dnp no)
 		(uuid "ce8268b2-e513-4d9f-b085-f69229a1ec93")
 		(property "Reference" "#PWR087"
-			(at 347.98 242.57 0)
+			(at 361.95 242.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26022,7 +26177,7 @@
 			)
 		)
 		(property "Value" "VCC"
-			(at 358.775 242.57 90)
+			(at 372.745 242.57 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26031,7 +26186,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 351.79 242.57 0)
+			(at 365.76 242.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26040,7 +26195,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 351.79 242.57 0)
+			(at 365.76 242.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26049,7 +26204,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"VCC\""
-			(at 351.79 242.57 0)
+			(at 365.76 242.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27009,6 +27164,74 @@
 			(project "isa-sdcard"
 				(path "/075aea89-321c-44ba-b0b1-8b82a6b1f518"
 					(reference "#PWR068")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 361.95 242.57 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "deb7827d-fc0c-49fc-a26d-7de526ac50b6")
+		(property "Reference" "R4"
+			(at 361.95 236.22 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "180"
+			(at 361.95 238.76 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+			(at 361.95 244.348 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 361.95 242.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 361.95 242.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d155eea0-ba39-45c5-a38d-5ceef2e21816")
+		)
+		(pin "2"
+			(uuid "c2b81a5a-a54e-4189-ad35-464e48a89fda")
+		)
+		(instances
+			(project "isa-sdcard"
+				(path "/075aea89-321c-44ba-b0b1-8b82a6b1f518"
+					(reference "R4")
 					(unit 1)
 				)
 			)

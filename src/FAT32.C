@@ -375,6 +375,7 @@ void fat32_transfer_files_in_folder(struct FAT32Folder* f, const char *basepath)
     char c;
     unsigned ok = 0;
     unsigned persistent = 0;
+    clock_t tic, toc;
 
     /* read folder */
     fat32_read_dir(f, fat32_folder_contents);
@@ -417,8 +418,11 @@ void fat32_transfer_files_in_folder(struct FAT32Folder* f, const char *basepath)
 		}
 	    }
 	    if(ok == 1) {
+		tic = clock();
 		if(fat32_transfer_file(entry, path) == 0) {
-		    printf(" (%lu bytes) [OK]\n", entry->filesize);
+		    toc = clock();
+		    printf(" (%lu bytes; %.2f s) [OK]\n", entry->filesize,
+			(toc - tic) / CLK_TCK);
 		} else {
 		    printf(" [FAIL]\n");
 		}

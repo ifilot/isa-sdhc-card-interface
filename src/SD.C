@@ -9,14 +9,14 @@ int sd_boot() {
 
     ctr = 0;
     v = 0xFF;
-    while(v == 0xFF & ctr < 100) {
+    while(v == 0xFF & ctr < 1000) {
 	sddis(BASEPORT);
 	cmdclr(BASEPORT);
 	sden(BASEPORT);
 	v = cmd00(BASEPORT);	/* put card in idle state */
 	ctr++;
     }
-    if(ctr == 100) {
+    if(ctr == 1000) {
 	printf("Cannot put card in idle mode, exiting...");
 	sddis(BASEPORT);
 	return 1;
@@ -35,7 +35,7 @@ int sd_boot() {
     /* TRY ACMD41 */
     v = 0xFF;
     ctr = 0;
-    while(v != 0x00 && ctr < 100) {
+    while(v != 0x00 && ctr < 1000) {
 	v = cmd55(BASEPORT);
 	if(v == 0xFF) {
 	    break;	/* terminate attempts */
@@ -43,7 +43,7 @@ int sd_boot() {
 	v = acmd41(BASEPORT);
 	ctr++;
     }
-    if(ctr == 100) {
+    if(ctr == 1000) {
 	/*printf("Unable to send ACMD41 after %i attempts.", ctr);*/
 	return -1;
     } else {
