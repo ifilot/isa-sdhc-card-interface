@@ -1,7 +1,7 @@
 #ifndef _SD_H
 #define _SD_H
 
-#define MAXTRIAL 1000
+#define MAXTRIAL 100
 
 #include <dos.h>
 #include "sdcmds.h"

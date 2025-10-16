@@ -16,7 +16,8 @@
 int state_main_menu();
 int state_sd();
 int state_nav();
-void init_sd();
+void init_fat();
+int boot_sd_card();
 
 static char cwd[CWDBUFLEN];
 
@@ -25,6 +26,12 @@ int main() {
     int c;
     int ret;
     int state = STATE_SD;
+
+    /* try to boot the sd card */
+    if(boot_sd_card() != 0) {
+	sddis(BASEPORT);
+	return -1;
+    }
 
     /* store current working directory */
     getcwd(cwd, CWDBUFLEN);
@@ -37,7 +44,7 @@ int main() {
     nav_init();
 
     /* initialize SD card */
-    init_sd();
+    init_fat();
 
     while(state != STATE_EXIT) {
 	switch(state) {
@@ -199,8 +206,33 @@ int state_nav() {
     }
 }
 
-void init_sd() {
-    sd_boot();
+int boot_sd_card() {
+    static unsigned char buf[514];
+    int res = -1;
+    unsigned attempts = 0;
+    while(res != 0 && attempts < 10) {
+	attempts++;
+	printf("Trying to open SD card (%i)\n", attempts);
+	res = sd_boot();
+	if(res != 0) {
+	    printf("Cannot open SD-card, exiting...\n");
+	    continue;
+	}
+	res = cmd17(BASEPORT, 0x00000000, buf);
+	if(res != 0) {
+	    printf("Cannot read boot sector.\n");
+	    continue;
+	}
+	if(buf[510] != 0x55 || buf[511] != 0xAA) {
+	    printf("Cannot read boot sector pattern.\n");
+	    res = -1;
+	    continue;
+	}
+    }
+    return res;
+}
+
+void init_fat() {
     fat32_open_partition();
     view_print_volume_label(fat32_partition.volume_label);
     fat32_read_current_folder();

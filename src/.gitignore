@@ -1,2 +1,4 @@
-.EXE
-.OBJ
+*.EXE
+*.OBJ
+*.exe
+*.obj

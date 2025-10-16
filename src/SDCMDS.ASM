@@ -295,9 +295,9 @@ sden    proc
 	push bp
 	mov bp,sp
 	mov dx, [bp+4]		; set base I/O port
-	add dx, 2		; set act port BASE | 02
+	add dx, 3		; set act port BASE | 02
 	mov al, 0FFh		; some dummy value
-	out dx, al              ; and send I/O instruction
+	in al, dx               ; and send I/O instruction
 	pop bp
 	ret
 sden    endp
@@ -308,9 +308,9 @@ sddis   proc
 	push bp
 	mov bp,sp
 	mov dx, [bp+4]		; set base I/O port
-	add dx, 3		; set deact port BASE | 03
+	add dx, 2		; set deact port BASE | 03
 	mov al, 0FFh		; some dummy value
-	out dx, al		; and send I/O instruction
+	in al, dx		; and send I/O instruction
 	pop bp
 	ret
 sddis   endp
